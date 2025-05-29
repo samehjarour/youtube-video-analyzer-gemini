@@ -30,6 +30,12 @@
       "type": "string",
       "description": "The Gemini AI file identifier for the processed video",
       "example": "files/GEMINI_FILE_ID"
+    },
+    "important_timestamps": {
+      "title": "Important Timestamps",
+      "type": "string",
+      "description": "Timestamped breakdown of important moments, key topics, and significant discussions throughout the video",
+      "nullable": true
     }
   },
   "required": [

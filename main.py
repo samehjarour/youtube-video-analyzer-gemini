@@ -14,6 +14,7 @@ async def main():
         youtube_url = actor_input.get('youtube_url')
         gemini_api_key = actor_input.get('gemini_api_key')
         youtube_cookies = actor_input.get('youtube_cookies')
+        extract_timestamps = actor_input.get('extract_timestamps', True)
         
         # Validate inputs
         if not youtube_url:
@@ -151,6 +152,33 @@ async def main():
                 3. What is the overall flow and organization of the content?
                 4. Are there distinct sections or topics covered?"""
             ])
+            
+            # Fourth analysis - timestamp extraction (if enabled)
+            timestamps_response = None
+            if extract_timestamps:
+                Actor.log.info("Extracting important timestamps...")
+                timestamps_response = model.generate_content([
+                    myfile,
+                    """Create a detailed timestamp breakdown of this video. For each important moment, provide:
+                    1. Timestamp (in MM:SS or HH:MM:SS format)
+                    2. Topic or key point being discussed
+                    3. Brief description of what happens at that moment
+                    4. Why this moment is significant
+                    
+                    Focus on:
+                    - Key topic transitions
+                    - Important insights or advice
+                    - Significant quotes or statements
+                    - Problem discussions and solutions
+                    - Data points or metrics mentioned
+                    - Action items or recommendations
+                    - Q&A moments (if applicable)
+                    
+                    Format each timestamp entry like this:
+                    [MM:SS] Topic: Description - Significance
+                    
+                    Provide 10-15 of the most important timestamps throughout the video."""
+                ])
 
             # Prepare the results
             analysis_results = {
@@ -158,7 +186,8 @@ async def main():
                 "comprehensive_summary": response1.text,
                 "key_quotes_insights": response2.text,
                 "video_structure_analysis": response3.text,
-                "file_id": myfile.name
+                "file_id": myfile.name,
+                "important_timestamps": timestamps_response.text if timestamps_response else None
             }
             
             # Push results to Apify dataset

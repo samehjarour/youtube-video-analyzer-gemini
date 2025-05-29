@@ -5,10 +5,11 @@ This Apify Actor analyzes YouTube videos using Google's Gemini AI to extract com
 ## Features
 
 - **Comprehensive Video Analysis**: Downloads YouTube videos and analyzes them using Google's Gemini 2.0 Flash model
-- **Multi-dimensional Insights**: Provides three types of analysis:
+- **Multi-dimensional Insights**: Provides comprehensive analysis including:
   - Detailed summary with participants, topics, and recommendations
   - Key quotes and business insights extraction
   - Video structure and format analysis
+  - **Important timestamps** of key moments and topic transitions
 - **Flexible API Key Options**: Use the built-in API key or provide your own
 - **Automatic Cleanup**: Downloads videos temporarily and cleans up after processing
 - **Quality Optimization**: Downloads videos at 720p or lower to optimize processing time
@@ -21,6 +22,7 @@ This Apify Actor analyzes YouTube videos using Google's Gemini AI to extract com
 
 ### Optional
 - **YouTube Cookies**: YouTube cookies in Netscape format (required for age-restricted or bot-protected videos)
+- **Extract Important Timestamps**: Extract timestamps of important moments, key topics, and significant discussions (enabled by default)
 
 ## Output
 
@@ -32,7 +34,8 @@ The Actor outputs a structured dataset with the following fields:
   "comprehensive_summary": "Detailed analysis including participants, topics, recommendations...",
   "key_quotes_insights": "Important quotes, business advice, problems and solutions...",
   "video_structure_analysis": "Video type, length, flow, and distinct sections...",
-  "file_id": "files/gemini_file_id"
+  "file_id": "files/gemini_file_id",
+  "important_timestamps": "[00:45] Introduction: Speaker introduces main topic - Sets context for discussion\n[02:30] Key Insight: Important business advice shared - Critical for understanding strategy..."
 }
 ```
 
@@ -48,10 +51,11 @@ The Actor outputs a structured dataset with the following fields:
 1. **Download**: Uses yt-dlp to download the YouTube video at optimal quality (720p max)
 2. **Upload**: Uploads the video to Google's Gemini AI service
 3. **Process**: Waits for Gemini to process the video (up to 5 minutes)
-4. **Analyze**: Runs three comprehensive analysis queries:
+4. **Analyze**: Runs comprehensive analysis queries:
    - Comprehensive summary analysis
    - Key quotes and insights extraction
    - Video structure analysis
+   - Important timestamps extraction (if enabled)
 5. **Output**: Saves results to Apify dataset
 6. **Cleanup**: Removes temporary video files
 

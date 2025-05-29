@@ -27,6 +27,13 @@
       "isSecret": true,
       "editor": "textarea",
       "nullable": true
+    },
+    "extract_timestamps": {
+      "title": "Extract Important Timestamps",
+      "type": "boolean",
+      "description": "Extract timestamps of important moments, key topics, and significant discussions from the video",
+      "default": true,
+      "example": true
     }
   },
   "required": ["youtube_url", "gemini_api_key"]
