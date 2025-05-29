@@ -1,0 +1,42 @@
+{
+  "title": "YouTube Video Analysis Results",
+  "description": "Comprehensive analysis results from YouTube video processed with Gemini AI",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "video_url": {
+      "title": "Video URL",
+      "type": "string",
+      "description": "The original YouTube video URL that was analyzed",
+      "example": "https://youtu.be/u8HpmP8HC-Y"
+    },
+    "comprehensive_summary": {
+      "title": "Comprehensive Summary",
+      "type": "string",
+      "description": "Detailed analysis including main content, participants, topics, recommendations, data points, and overall tone"
+    },
+    "key_quotes_insights": {
+      "title": "Key Quotes and Insights",
+      "type": "string",
+      "description": "Important quotes, business advice, problems discussed, solutions proposed, and specific strategies mentioned"
+    },
+    "video_structure_analysis": {
+      "title": "Video Structure Analysis",
+      "type": "string",
+      "description": "Analysis of video type, length, flow, organization, and distinct sections covered"
+    },
+    "file_id": {
+      "title": "Gemini File ID",
+      "type": "string",
+      "description": "The Gemini AI file identifier for the processed video",
+      "example": "files/8jxwwyjs4iqj"
+    }
+  },
+  "required": [
+    "video_url",
+    "comprehensive_summary",
+    "key_quotes_insights",
+    "video_structure_analysis",
+    "file_id"
+  ]
+}

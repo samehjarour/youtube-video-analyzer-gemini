@@ -1,0 +1,33 @@
+{
+  "actorSpecification": 1,
+  "name": "youtube-video-analyzer-gemini",
+  "title": "YouTube Video Analyzer with Gemini AI",
+  "description": "Analyze YouTube videos using Google's Gemini AI to extract comprehensive insights, key quotes, and structural analysis. Downloads videos, processes them with Gemini's multimodal capabilities, and provides detailed analysis including summaries, key insights, and video structure breakdown.",
+  "version": "1.0.0",
+  "meta": {
+    "templateId": "python-start"
+  },
+  "input": "./INPUT_SCHEMA.json",
+  "output": "./OUTPUT_SCHEMA.json",
+  "dockerfile": "./Dockerfile",
+  "readme": "./README.md",
+  "categories": [
+    "AI",
+    "ENTERTAINMENT",
+    "SOCIAL_MEDIA"
+  ],
+  "keywords": [
+    "youtube",
+    "video analysis",
+    "gemini ai",
+    "content analysis",
+    "video insights",
+    "ai analysis",
+    "multimodal ai"
+  ],
+  "defaultRunOptions": {
+    "build": "latest",
+    "timeoutSecs": 3600,
+    "memoryMbytes": 4096
+  }
+}
