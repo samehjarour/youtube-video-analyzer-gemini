@@ -13,6 +13,7 @@ async def main():
         # Extract input parameters
         youtube_url = actor_input.get('youtube_url')
         gemini_api_key = actor_input.get('gemini_api_key')
+        youtube_cookies = actor_input.get('youtube_cookies')
         
         # Validate inputs
         if not youtube_url:
@@ -37,13 +38,26 @@ async def main():
             # Download the video using yt-dlp
             Actor.log.info("Downloading video...")
             
+            # Prepare cookies file if provided
+            cookies_file = None
+            if youtube_cookies:
+                cookies_file = "cookies.txt"
+                with open(cookies_file, "w") as f:
+                    f.write(youtube_cookies)
+                Actor.log.info("Using provided YouTube cookies")
+            
             # Download with specific format to get a smaller file
             download_command = [
                 "yt-dlp", 
                 "--format", "best[height<=720]",  # Limit to 720p or lower for smaller file
-                "--output", "youtube_video.%(ext)s",
-                youtube_url
+                "--output", "youtube_video.%(ext)s"
             ]
+            
+            # Add cookies if provided
+            if cookies_file:
+                download_command.extend(["--cookies", cookies_file])
+            
+            download_command.append(youtube_url)
             
             result = subprocess.run(download_command, capture_output=True, text=True)
             
@@ -155,6 +169,12 @@ async def main():
             # Clean up downloaded file
             Actor.log.info(f"Cleaning up downloaded file: {video_file_path}")
             os.remove(video_file_path)
+            
+            # Clean up cookies file if it was created
+            if cookies_file and os.path.exists(cookies_file):
+                os.remove(cookies_file)
+                Actor.log.info("Cleaned up cookies file")
+            
             Actor.log.info("Cleanup complete!")
 
         except Exception as e:
@@ -165,6 +185,14 @@ async def main():
                 try:
                     os.remove(file)
                     Actor.log.info(f"Cleaned up: {file}")
+                except:
+                    pass
+            
+            # Clean up cookies file if it exists
+            if os.path.exists("cookies.txt"):
+                try:
+                    os.remove("cookies.txt")
+                    Actor.log.info("Cleaned up cookies file")
                 except:
                     pass
             Actor.log.error(f"Actor failed with error: {e}")

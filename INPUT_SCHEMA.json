@@ -19,6 +19,14 @@
       "isSecret": true,
       "example": "AIzaSyC...",
       "editor": "textfield"
+    },
+    "youtube_cookies": {
+      "title": "YouTube Cookies (Optional)",
+      "type": "string",
+      "description": "YouTube cookies in Netscape format. Required for age-restricted or bot-protected videos. Export from your browser using extensions like 'Get cookies.txt' or follow the guide: https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp",
+      "isSecret": true,
+      "editor": "textarea",
+      "nullable": true
     }
   },
   "required": ["youtube_url", "gemini_api_key"]

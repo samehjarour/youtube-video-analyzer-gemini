@@ -19,6 +19,9 @@ This Apify Actor analyzes YouTube videos using Google's Gemini AI to extract com
 - **YouTube URL**: The YouTube video URL to analyze (supports both youtu.be and youtube.com formats)
 - **Gemini API Key**: Your Google Gemini API key (get it from https://aistudio.google.com/app/apikey)
 
+### Optional
+- **YouTube Cookies**: YouTube cookies in Netscape format (required for age-restricted or bot-protected videos)
+
 ## Output
 
 The Actor outputs a structured dataset with the following fields:
@@ -52,18 +55,30 @@ The Actor outputs a structured dataset with the following fields:
 5. **Output**: Saves results to Apify dataset
 6. **Cleanup**: Removes temporary video files
 
-## API Key Setup
+## Setup Instructions
 
-### Getting Your API Key
+### Getting Your Gemini API Key
 1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Sign in with your Google account
 3. Create a new API key
 4. Copy the API key and paste it into the "Gemini API Key" field
 
+### YouTube Cookies (Optional but Recommended)
+YouTube now often requires authentication to download videos. If you encounter "Sign in to confirm you're not a bot" errors:
+
+1. **Install a browser extension** like "Get cookies.txt LOCALLY" or "cookies.txt"
+2. **Visit YouTube** and sign in to your account
+3. **Export cookies** using the extension (Netscape format)
+4. **Paste the cookies** into the "YouTube Cookies" field
+
+**Alternative methods**:
+- Follow the [yt-dlp cookie guide](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
+- Use browser developer tools to export cookies manually
+
 ### Security
-- Your API key is handled securely and marked as a secret in Apify
-- The key is never logged or exposed in the output
-- Each user provides their own API key for maximum security and control
+- Your API key and cookies are handled securely and marked as secrets in Apify
+- Sensitive data is never logged or exposed in the output
+- Each user provides their own credentials for maximum security and control
 
 ## Technical Requirements
 
@@ -95,7 +110,8 @@ The Actor includes comprehensive error handling for:
 ```json
 {
   "youtube_url": "https://youtu.be/VIDEO_ID",
-  "gemini_api_key": "AIzaSyC..."
+  "gemini_api_key": "AIzaSyC...",
+  "youtube_cookies": "# Netscape HTTP Cookie File\n# This is a generated file..." 
 }
 ```
 
