@@ -159,25 +159,31 @@ async def main():
                 Actor.log.info("Extracting important timestamps...")
                 timestamps_response = model.generate_content([
                     myfile,
-                    """Create a detailed timestamp breakdown of this video. For each important moment, provide:
+                    """Create a comprehensive timestamp breakdown that covers the ENTIRE video from beginning to end. 
+                    
+                    IMPORTANT: Analyze the full video duration and provide timestamps that are distributed across the entire length of the video, not just concentrated in certain sections.
+                    
+                    For each important moment, provide:
                     1. Timestamp (in MM:SS or HH:MM:SS format)
                     2. Topic or key point being discussed
                     3. Brief description of what happens at that moment
                     4. Why this moment is significant
                     
                     Focus on:
-                    - Key topic transitions
-                    - Important insights or advice
+                    - Opening/introduction (early timestamps)
+                    - Key topic transitions throughout the video
+                    - Important insights or advice (distributed across video)
                     - Significant quotes or statements
                     - Problem discussions and solutions
                     - Data points or metrics mentioned
                     - Action items or recommendations
                     - Q&A moments (if applicable)
+                    - Conclusion/wrap-up (later timestamps)
                     
                     Format each timestamp entry like this:
                     [MM:SS] Topic: Description - Significance
                     
-                    Provide 10-15 of the most important timestamps throughout the video."""
+                    Provide 15-20 timestamps that span the ENTIRE video duration from start to finish. Make sure to include timestamps from the beginning, middle, and end portions of the video to give complete coverage."""
                 ])
 
             # Prepare the results
