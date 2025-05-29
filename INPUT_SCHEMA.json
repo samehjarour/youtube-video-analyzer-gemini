@@ -25,7 +25,10 @@
       "description": "Your Google Gemini API key. Only required if 'Use Default Gemini API Key' is unchecked. Get your API key from https://aistudio.google.com/app/apikey",
       "isSecret": true,
       "example": "AIzaSyC...",
-      "editor": "textfield"
+      "editor": "textfield",
+      "nullable": true,
+      "sectionCaption": "Custom API Key",
+      "sectionDescription": "Provide your own Gemini API key if not using the default"
     }
   },
   "required": ["youtube_url"]
