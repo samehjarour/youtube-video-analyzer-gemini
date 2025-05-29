@@ -16,11 +16,13 @@ async def main():
         
         # Validate inputs
         if not youtube_url:
-            await Actor.fail('YouTube URL is required')
+            Actor.log.error('YouTube URL is required')
+            await Actor.fail()
             return
             
         if not gemini_api_key:
-            await Actor.fail('Gemini API key is required')
+            Actor.log.error('Gemini API key is required')
+            await Actor.fail()
             return
             
         # Use the provided API key
@@ -46,7 +48,8 @@ async def main():
             result = subprocess.run(download_command, capture_output=True, text=True)
             
             if result.returncode != 0:
-                await Actor.fail(f"Download failed: {result.stderr}")
+                Actor.log.error(f"Download failed: {result.stderr}")
+                await Actor.fail()
                 return
             
             Actor.log.info("Download successful!")
@@ -54,7 +57,8 @@ async def main():
             # Find the downloaded file
             video_files = glob.glob("youtube_video.*")
             if not video_files:
-                await Actor.fail("No video file found after download")
+                Actor.log.error("No video file found after download")
+                await Actor.fail()
                 return
             
             video_file_path = video_files[0]
@@ -80,7 +84,8 @@ async def main():
                 elif file_info.state.name == 'FAILED':
                     # Clean up downloaded file
                     os.remove(video_file_path)
-                    await Actor.fail("File processing failed!")
+                    Actor.log.error("File processing failed!")
+                    await Actor.fail()
                     return
                 else:
                     Actor.log.info("Still processing... waiting 15 seconds")
@@ -90,7 +95,8 @@ async def main():
             if wait_time >= max_wait_time:
                 # Clean up downloaded file
                 os.remove(video_file_path)
-                await Actor.fail("Timeout waiting for file to be processed.")
+                Actor.log.error("Timeout waiting for file to be processed.")
+                await Actor.fail()
                 return
 
             # Generate detailed content analysis
@@ -161,7 +167,8 @@ async def main():
                     Actor.log.info(f"Cleaned up: {file}")
                 except:
                     pass
-            await Actor.fail(f"Actor failed with error: {e}")
+            Actor.log.error(f"Actor failed with error: {e}")
+            await Actor.fail()
 
 if __name__ == '__main__':
     import asyncio
