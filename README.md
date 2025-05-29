@@ -58,13 +58,20 @@ The Actor outputs a structured dataset with the following fields:
 ## API Key Information
 
 ### Using Default Key
-The Actor includes a built-in Gemini API key for convenience. Simply check "Use Default Gemini API Key" in the input.
+The Actor can use a default Gemini API key if configured by the maintainer. The API key is securely stored as an environment variable (`GEMINI_API_KEY`) and never exposed in the code.
+
+**Note**: If you're running this Actor and the default key is not configured, you'll need to provide your own API key.
 
 ### Using Your Own Key
 To use your own API key:
 1. Uncheck "Use Default Gemini API Key"
 2. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
 3. Enter your API key in the "Your Gemini API Key" field
+
+### For Developers/Self-Hosting
+If you're running this Actor yourself:
+1. Set the `GEMINI_API_KEY` environment variable with your API key
+2. Or configure it as an Apify secret in your Actor settings
 
 ## Technical Requirements
 

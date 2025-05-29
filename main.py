@@ -26,7 +26,11 @@ async def main():
             
         # Use default key if specified, otherwise use provided key
         if use_default_key:
-            api_key = "AIzaSyC1xELhT9imEji5TRcVGkSsENhQmsSSo6k"
+            # Get API key from environment variable or Apify secret
+            api_key = os.getenv('GEMINI_API_KEY')
+            if not api_key:
+                await Actor.fail('Default Gemini API key not configured. Please contact the actor maintainer or provide your own API key.')
+                return
         else:
             api_key = gemini_api_key
             
