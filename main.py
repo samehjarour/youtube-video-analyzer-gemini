@@ -13,30 +13,18 @@ async def main():
         # Extract input parameters
         youtube_url = actor_input.get('youtube_url')
         gemini_api_key = actor_input.get('gemini_api_key')
-        use_default_key = actor_input.get('use_default_key', False)
         
         # Validate inputs
         if not youtube_url:
             await Actor.fail('YouTube URL is required')
             return
             
-        if not use_default_key and not gemini_api_key:
-            await Actor.fail('Gemini API key is required when not using default key')
+        if not gemini_api_key:
+            await Actor.fail('Gemini API key is required')
             return
             
-        # Use default key if specified, otherwise use provided key
-        if use_default_key:
-            # Get API key from environment variable or Apify secret
-            api_key = os.getenv('GEMINI_API_KEY')
-            if not api_key:
-                await Actor.fail('Default Gemini API key not configured. Please contact the actor maintainer or provide your own API key.')
-                return
-        else:
-            api_key = gemini_api_key
-            
-        if not api_key:
-            await Actor.fail('No valid API key available')
-            return
+        # Use the provided API key
+        api_key = gemini_api_key
             
         # Configure Gemini API
         genai.configure(api_key=api_key)

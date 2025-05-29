@@ -17,10 +17,7 @@ This Apify Actor analyzes YouTube videos using Google's Gemini AI to extract com
 
 ### Required
 - **YouTube URL**: The YouTube video URL to analyze (supports both youtu.be and youtube.com formats)
-
-### Optional
-- **Use Default Gemini API Key**: Check to use the built-in API key (default: true)
-- **Your Gemini API Key**: Provide your own Google Gemini API key if not using the default
+- **Gemini API Key**: Your Google Gemini API key (get it from https://aistudio.google.com/app/apikey)
 
 ## Output
 
@@ -55,23 +52,18 @@ The Actor outputs a structured dataset with the following fields:
 5. **Output**: Saves results to Apify dataset
 6. **Cleanup**: Removes temporary video files
 
-## API Key Information
+## API Key Setup
 
-### Using Default Key
-The Actor can use a default Gemini API key if configured by the maintainer. The API key is securely stored as an environment variable (`GEMINI_API_KEY`) and never exposed in the code.
+### Getting Your API Key
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Sign in with your Google account
+3. Create a new API key
+4. Copy the API key and paste it into the "Gemini API Key" field
 
-**Note**: If you're running this Actor and the default key is not configured, you'll need to provide your own API key.
-
-### Using Your Own Key
-To use your own API key:
-1. Uncheck "Use Default Gemini API Key"
-2. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
-3. Enter your API key in the "Your Gemini API Key" field
-
-### For Developers/Self-Hosting
-If you're running this Actor yourself:
-1. Set the `GEMINI_API_KEY` environment variable with your API key
-2. Or configure it as an Apify secret in your Actor settings
+### Security
+- Your API key is handled securely and marked as a secret in Apify
+- The key is never logged or exposed in the output
+- Each user provides their own API key for maximum security and control
 
 ## Technical Requirements
 
@@ -103,7 +95,7 @@ The Actor includes comprehensive error handling for:
 ```json
 {
   "youtube_url": "https://youtu.be/VIDEO_ID",
-  "use_default_key": true
+  "gemini_api_key": "AIzaSyC..."
 }
 ```
 

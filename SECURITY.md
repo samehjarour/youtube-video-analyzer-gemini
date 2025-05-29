@@ -6,12 +6,13 @@ This Actor follows security best practices for API key management:
 
 ### 🔒 No Hardcoded Keys
 - **No API keys are hardcoded** in the source code
-- All sensitive credentials are managed through environment variables
-- The default API key (if available) is stored as `GEMINI_API_KEY` environment variable
+- All API keys are provided by users through secure input fields
+- Each user provides their own API key for maximum security and control
 
-### 🛡️ Environment Variables
-- `GEMINI_API_KEY`: Default Gemini API key (configured by maintainer)
-- User-provided keys are handled securely through Apify's input system
+### 🛡️ User-Provided Keys
+- Users provide their own Gemini API key through Apify's secure input system
+- API keys are marked as secrets and handled securely
+- No shared or default API keys - each user has full control
 
 ### 📋 Security Checklist
 - ✅ No exposed API keys in source code
@@ -38,7 +39,7 @@ If you discover a security vulnerability, please report it by:
 - Monitor your API usage for unexpected activity
 
 ### When Self-Hosting
-- Set environment variables securely
+- Always provide your own API key
 - Use Apify's secret management features
 - Regularly update dependencies
 - Monitor Actor logs for security issues
