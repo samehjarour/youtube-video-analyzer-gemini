@@ -9,7 +9,7 @@
       "type": "string",
       "description": "The YouTube video URL to analyze (e.g., https://youtu.be/VIDEO_ID or https://www.youtube.com/watch?v=VIDEO_ID)",
       "pattern": "^https?://(www\\.)?(youtube\\.com/watch\\?v=|youtu\\.be/)[a-zA-Z0-9_-]+",
-      "example": "https://youtu.be/u8HpmP8HC-Y",
+      "example": "https://youtu.be/VIDEO_ID",
       "editor": "textfield"
     },
     "use_default_key": {

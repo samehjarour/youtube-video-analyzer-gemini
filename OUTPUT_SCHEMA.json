@@ -8,7 +8,7 @@
       "title": "Video URL",
       "type": "string",
       "description": "The original YouTube video URL that was analyzed",
-      "example": "https://youtu.be/u8HpmP8HC-Y"
+      "example": "https://youtu.be/VIDEO_ID"
     },
     "comprehensive_summary": {
       "title": "Comprehensive Summary",
@@ -29,7 +29,7 @@
       "title": "Gemini File ID",
       "type": "string",
       "description": "The Gemini AI file identifier for the processed video",
-      "example": "files/8jxwwyjs4iqj"
+      "example": "files/GEMINI_FILE_ID"
     }
   },
   "required": [

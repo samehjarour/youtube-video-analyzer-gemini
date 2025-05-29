@@ -102,7 +102,7 @@ The Actor includes comprehensive error handling for:
 
 ```json
 {
-  "youtube_url": "https://youtu.be/u8HpmP8HC-Y",
+  "youtube_url": "https://youtu.be/VIDEO_ID",
   "use_default_key": true
 }
 ```
@@ -111,11 +111,11 @@ The Actor includes comprehensive error handling for:
 
 ```json
 {
-  "video_url": "https://youtu.be/u8HpmP8HC-Y",
+  "video_url": "https://youtu.be/VIDEO_ID",
   "comprehensive_summary": "Here's a detailed analysis of the video:\n\n**1. Detailed Summary...**",
   "key_quotes_insights": "Here are the key details from the video:\n\n1. Key quotes/insights...",
   "video_structure_analysis": "Okay, here is an analysis of the structure and format...",
-  "file_id": "files/8jxwwyjs4iqj"
+  "file_id": "files/GEMINI_FILE_ID"
 }
 ```
 
