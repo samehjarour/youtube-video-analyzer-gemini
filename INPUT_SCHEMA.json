@@ -9,20 +9,23 @@
       "type": "string",
       "description": "The YouTube video URL to analyze (e.g., https://youtu.be/VIDEO_ID or https://www.youtube.com/watch?v=VIDEO_ID)",
       "pattern": "^https?://(www\\.)?(youtube\\.com/watch\\?v=|youtu\\.be/)[a-zA-Z0-9_-]+",
-      "example": "https://youtu.be/u8HpmP8HC-Y"
+      "example": "https://youtu.be/u8HpmP8HC-Y",
+      "editor": "textfield"
     },
     "use_default_key": {
       "title": "Use Default Gemini API Key",
       "type": "boolean",
       "description": "Check this to use the built-in Gemini API key. If unchecked, you must provide your own API key below.",
-      "default": true
+      "default": true,
+      "editor": "checkbox"
     },
     "gemini_api_key": {
       "title": "Your Gemini API Key (Optional)",
       "type": "string",
       "description": "Your Google Gemini API key. Only required if 'Use Default Gemini API Key' is unchecked. Get your API key from https://aistudio.google.com/app/apikey",
       "isSecret": true,
-      "example": "AIzaSyC..."
+      "example": "AIzaSyC...",
+      "editor": "textfield"
     }
   },
   "required": ["youtube_url"]
