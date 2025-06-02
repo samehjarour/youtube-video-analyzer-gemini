@@ -1,0 +1,46 @@
+{
+  "title": "YouTube Video Analysis Results",
+  "description": "Comprehensive analysis results from YouTube video processed with Google Gemini AI",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "video_url": {
+      "title": "Video URL",
+      "type": "string",
+      "description": "The original YouTube video URL that was analyzed",
+      "format": "uri",
+      "example": "https://youtu.be/dQw4w9WgXcQ"
+    },
+    "comprehensive_summary": {
+      "title": "Comprehensive Summary",
+      "type": "string",
+      "description": "Detailed analysis including main content, participants, topics, recommendations, data points, and overall tone of the video",
+      "example": "This video features a business consultation where the main speaker discusses digital marketing strategies. Key participants include the consultant and client. Main topics covered include SEO optimization, content marketing, and social media strategy..."
+    },
+    "key_quotes_insights": {
+      "title": "Key Quotes and Insights",
+      "type": "string",
+      "description": "Most important quotes, valuable business advice, problems and solutions discussed, and specific strategies or frameworks mentioned",
+      "example": "Key quotes: 'Content is king, but distribution is queen' - Main business advice: Focus on customer retention over acquisition. Problems discussed: Low conversion rates. Solutions: Implement A/B testing and personalization..."
+    },
+    "video_structure_analysis": {
+      "title": "Video Structure Analysis",
+      "type": "string",
+      "description": "Analysis of video type, length, flow, organization, and distinct sections covered",
+      "example": "Video type: Business consultation interview. Length: Approximately 45 minutes. Flow: Introduction (0-5 min), Problem identification (5-20 min), Solution discussion (20-40 min), Action items (40-45 min)..."
+    },
+    "file_id": {
+      "title": "Gemini File ID",
+      "type": "string",
+      "description": "The Google Gemini file identifier for the uploaded video file",
+      "example": "files/abc123def456ghi789"
+    }
+  },
+  "required": [
+    "video_url",
+    "comprehensive_summary",
+    "key_quotes_insights", 
+    "video_structure_analysis",
+    "file_id"
+  ]
+}
