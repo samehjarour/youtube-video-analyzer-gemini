@@ -30,7 +30,7 @@
     "cookies": {
       "title": "Cookies (Optional)",
       "type": "string",
-      "description": "Optional: Cookies to be used for accessing restricted YouTube videos. Provide them as a string (e.g., \"key1=value1; key2=value2\").",
+      "description": "Optional: Cookies in Netscape format to be used for accessing restricted YouTube videos. You can export them using the Cookie-Editor extension: https://cookie-editor.com/",
       "isSecret": true,
       "editor": "textfield"
     }
