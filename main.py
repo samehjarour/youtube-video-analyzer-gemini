@@ -18,11 +18,11 @@ async def main():
         
         # Validate inputs
         if not youtube_url:
-            Actor.fail(status_message=f'YouTube URL is required')
+            await Actor.fail(status_message=f'YouTube URL is required')
             return
             
         if not use_default_key and not gemini_api_key:
-            Actor.fail(status_message=f'Gemini API key is required when not using default key')
+            await Actor.fail(status_message=f'Gemini API key is required when not using default key')
             return
             
         # Use default key if specified, otherwise use provided key
@@ -55,7 +55,7 @@ async def main():
             result = subprocess.run(download_command, capture_output=True, text=True)
             
             if result.returncode != 0:
-                Actor.fail(status_message=f"Download failed: {result.stderr}")
+                await Actor.fail(status_message=f"Download failed: {result.stderr}")
                 return
             
             Actor.log.info("Download successful!")
@@ -63,7 +63,7 @@ async def main():
             # Find the downloaded file
             video_files = glob.glob("youtube_video.*")
             if not video_files:
-                Actor.fail(status_message=f"No video file found after download")
+                await Actor.fail(status_message=f"No video file found after download")
                 return
             
             video_file_path = video_files[0]
@@ -89,7 +89,7 @@ async def main():
                 elif file_info.state.name == 'FAILED':
                     # Clean up downloaded file
                     os.remove(video_file_path)
-                    Actor.fail(status_message=f"File processing failed!")
+                    await Actor.fail(status_message=f"File processing failed!")
                     return
                 else:
                     Actor.log.info("Still processing... waiting 15 seconds")
@@ -99,7 +99,7 @@ async def main():
             if wait_time >= max_wait_time:
                 # Clean up downloaded file
                 os.remove(video_file_path)
-                Actor.fail(status_message=f"Timeout waiting for file to be processed.")
+                await Actor.fail(status_message=f"Timeout waiting for file to be processed.")
                 return
 
             # Generate detailed content analysis
@@ -170,7 +170,7 @@ async def main():
                     Actor.log.info(f"Cleaned up: {file}")
                 except:
                     pass
-            Actor.fail(status_message=f"Actor failed with error: {e}")
+            await Actor.fail(status_message=f"Actor failed with error: {e}")
 
 if __name__ == '__main__':
     import asyncio
