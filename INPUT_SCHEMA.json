@@ -33,6 +33,40 @@
       "description": "Optional: YouTube cookies in Netscape format to bypass bot detection. Export cookies from your browser using extensions like 'Get cookies.txt LOCALLY' or 'Cookie-Editor'. Paste the entire contents of the cookies.txt file here. Required for age-restricted or sign-in protected videos.",
       "isSecret": true,
       "editor": "textarea"
+    },
+    "use_external_downloader": {
+      "title": "Use External YouTube Downloader",
+      "type": "boolean",
+      "description": "Use Apify's streamers/youtube-video-downloader Actor instead of yt-dlp. More reliable but requires cloud storage setup.",
+      "default": false,
+      "editor": "checkbox"
+    },
+    "s3_access_key_id": {
+      "title": "S3 Access Key ID (for external downloader)",
+      "type": "string",
+      "description": "Required only if using external downloader. AWS S3 access key ID for storing downloaded videos.",
+      "isSecret": true,
+      "editor": "textfield"
+    },
+    "s3_secret_access_key": {
+      "title": "S3 Secret Access Key (for external downloader)",
+      "type": "string",
+      "description": "Required only if using external downloader. AWS S3 secret access key for storing downloaded videos.",
+      "isSecret": true,
+      "editor": "textfield"
+    },
+    "s3_bucket": {
+      "title": "S3 Bucket Name (for external downloader)",
+      "type": "string",
+      "description": "Required only if using external downloader. Name of your S3 bucket where videos will be stored.",
+      "editor": "textfield"
+    },
+    "s3_region": {
+      "title": "S3 Region (for external downloader)",
+      "type": "string",
+      "description": "Required only if using external downloader. AWS region of your S3 bucket (e.g., 'us-west-1').",
+      "default": "us-east-1",
+      "editor": "textfield"
     }
   },
   "required": ["youtube_url"]

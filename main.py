@@ -3,7 +3,176 @@ import time
 import subprocess
 import os
 import glob
+import requests
+import boto3
 from apify import Actor
+
+async def download_with_external_actor(youtube_url, s3_access_key_id, s3_secret_access_key, s3_bucket, s3_region):
+    """Download video using streamers/youtube-video-downloader Actor and retrieve from S3"""
+    try:
+        # Start the external downloader Actor
+        Actor.log.info("Starting external YouTube downloader Actor...")
+        
+        # Use the MCP tool to run the external Actor
+        from apify_client import ApifyClient
+        
+        # Get Apify token from environment
+        apify_token = os.environ.get('APIFY_TOKEN')
+        if not apify_token:
+            raise Exception("APIFY_TOKEN environment variable is required for external downloader")
+        
+        client = ApifyClient(apify_token)
+        
+        # Prepare input for the external Actor
+        actor_input = {
+            "videos": [{"url": youtube_url}],
+            "preferredQuality": "720p",
+            "preferredFormat": "mp4",
+            "s3AccessKeyId": s3_access_key_id,
+            "s3SecretAccessKey": s3_secret_access_key,
+            "s3Bucket": s3_bucket,
+            "s3Region": s3_region
+        }
+        
+        # Run the Actor
+        Actor.log.info("Running streamers/youtube-video-downloader...")
+        run = client.actor("streamers/youtube-video-downloader").call(run_input=actor_input)
+        
+        if run['status'] != 'SUCCEEDED':
+            raise Exception(f"External downloader failed with status: {run['status']}")
+        
+        # Get the results from the Actor run
+        dataset_items = list(client.dataset(run['defaultDatasetId']).iterate_items())
+        
+        if not dataset_items:
+            raise Exception("No results from external downloader")
+        
+        # Extract S3 file information from results
+        result = dataset_items[0]
+        s3_key = result.get('s3Key') or result.get('fileName')
+        
+        if not s3_key:
+            raise Exception("No S3 key found in downloader results")
+        
+        # Download the file from S3
+        Actor.log.info(f"Downloading video from S3: {s3_key}")
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=s3_access_key_id,
+            aws_secret_access_key=s3_secret_access_key,
+            region_name=s3_region
+        )
+        
+        # Download to local file
+        local_filename = "youtube_video.mp4"
+        s3_client.download_file(s3_bucket, s3_key, local_filename)
+        
+        Actor.log.info(f"Successfully downloaded video from S3 to {local_filename}")
+        return local_filename
+        
+    except Exception as e:
+        Actor.log.error(f"External downloader failed: {e}")
+        return None
+
+async def download_with_ytdlp(youtube_url, cookies):
+    """Download video using yt-dlp with fallback strategies"""
+    try:
+        # Update yt-dlp to latest version to handle YouTube changes
+        Actor.log.info("Updating yt-dlp to latest version...")
+        update_result = subprocess.run(["yt-dlp", "--update"], capture_output=True, text=True)
+        if update_result.returncode == 0:
+            Actor.log.info("yt-dlp updated successfully")
+        else:
+            Actor.log.info("yt-dlp update failed or not needed, continuing with current version")
+        
+        # Download with specific format to get a smaller file
+        # Try multiple strategies to handle YouTube's changing player
+        download_strategies = [
+            # Strategy 1: Standard download with fallback formats
+            [
+                "yt-dlp", 
+                "--format", "best[height<=720]/best[height<=480]/worst",
+                "--output", "youtube_video.%(ext)s",
+                "--no-check-certificate",
+                "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "--extractor-retries", "5",
+                "--fragment-retries", "5",
+                "--retry-sleep", "2",
+                "--ignore-errors",
+                youtube_url
+            ],
+            # Strategy 2: Force generic extractor if YouTube extractor fails
+            [
+                "yt-dlp",
+                "--force-generic-extractor",
+                "--format", "best[height<=720]/best",
+                "--output", "youtube_video.%(ext)s",
+                "--no-check-certificate",
+                "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                youtube_url
+            ],
+            # Strategy 3: Use audio-only as last resort
+            [
+                "yt-dlp",
+                "--format", "bestaudio/best",
+                "--output", "youtube_video.%(ext)s",
+                "--no-check-certificate",
+                "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                youtube_url
+            ]
+        ]
+        
+        # Try each download strategy until one succeeds
+        result = None
+        cookies_file = None
+        
+        for strategy_num, download_command in enumerate(download_strategies, 1):
+            Actor.log.info(f"Trying download strategy {strategy_num}...")
+            
+            # Add cookies if provided
+            if cookies:
+                if not cookies_file:
+                    cookies_file = "cookies.txt"
+                    with open(cookies_file, 'w') as f:
+                        f.write(cookies)
+                # Insert cookies at the beginning of the command (after yt-dlp)
+                cmd_with_cookies = download_command.copy()
+                cmd_with_cookies.insert(1, "--cookies")
+                cmd_with_cookies.insert(2, cookies_file)
+                download_command = cmd_with_cookies
+            
+            result = subprocess.run(download_command, capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                Actor.log.info(f"Download successful with strategy {strategy_num}!")
+                break
+            else:
+                Actor.log.warning(f"Strategy {strategy_num} failed: {result.stderr[:200]}...")
+                if strategy_num < len(download_strategies):
+                    Actor.log.info(f"Trying next strategy...")
+                else:
+                    Actor.log.error("All download strategies failed")
+        
+        # Clean up cookies file if it was created
+        if cookies_file and os.path.exists(cookies_file):
+            os.remove(cookies_file)
+            Actor.log.info("Cleaned up cookies file")
+        
+        if result.returncode != 0:
+            Actor.log.error(f"All download strategies failed. Last error: {result.stderr}")
+            return None
+        
+        # Find the downloaded file
+        video_files = glob.glob("youtube_video.*")
+        if not video_files:
+            Actor.log.error("No video file found after download")
+            return None
+        
+        return video_files[0]
+        
+    except Exception as e:
+        Actor.log.error(f"yt-dlp download failed: {e}")
+        return None
 
 async def main():
     async with Actor:
@@ -15,6 +184,11 @@ async def main():
         gemini_api_key = actor_input.get('gemini_api_key')
         use_default_key = actor_input.get('use_default_key', False)
         cookies = actor_input.get('cookies')
+        use_external_downloader = actor_input.get('use_external_downloader', False)
+        s3_access_key_id = actor_input.get('s3_access_key_id')
+        s3_secret_access_key = actor_input.get('s3_secret_access_key')
+        s3_bucket = actor_input.get('s3_bucket')
+        s3_region = actor_input.get('s3_region', 'us-east-1')
         
         # Validate inputs
         if not youtube_url:
@@ -24,6 +198,12 @@ async def main():
         if not use_default_key and not gemini_api_key:
             await Actor.fail(status_message=f'Gemini API key is required when not using default key')
             return
+            
+        # Validate external downloader inputs
+        if use_external_downloader:
+            if not all([s3_access_key_id, s3_secret_access_key, s3_bucket]):
+                await Actor.fail(status_message=f'S3 credentials (access key, secret key, and bucket) are required when using external downloader')
+                return
             
         # Use default key if specified, otherwise use provided key
         if use_default_key:
@@ -37,103 +217,21 @@ async def main():
         Actor.log.info(f"Starting download of YouTube video: {youtube_url}")
 
         try:
-            # Update yt-dlp to latest version to handle YouTube changes
-            Actor.log.info("Updating yt-dlp to latest version...")
-            update_result = subprocess.run(["yt-dlp", "--update"], capture_output=True, text=True)
-            if update_result.returncode == 0:
-                Actor.log.info("yt-dlp updated successfully")
+            video_file_path = None
+            
+            if use_external_downloader:
+                # Use external YouTube downloader Actor
+                Actor.log.info("Using external YouTube downloader Actor...")
+                video_file_path = await download_with_external_actor(youtube_url, s3_access_key_id, s3_secret_access_key, s3_bucket, s3_region)
             else:
-                Actor.log.info("yt-dlp update failed or not needed, continuing with current version")
+                # Use yt-dlp with fallback strategies
+                Actor.log.info("Using yt-dlp downloader...")
+                video_file_path = await download_with_ytdlp(youtube_url, cookies)
             
-            # Download the video using yt-dlp
-            Actor.log.info("Downloading video...")
-            
-            # Download with specific format to get a smaller file
-            # Try multiple strategies to handle YouTube's changing player
-            download_strategies = [
-                # Strategy 1: Standard download with fallback formats
-                [
-                    "yt-dlp", 
-                    "--format", "best[height<=720]/best[height<=480]/worst",
-                    "--output", "youtube_video.%(ext)s",
-                    "--no-check-certificate",
-                    "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                    "--extractor-retries", "5",
-                    "--fragment-retries", "5",
-                    "--retry-sleep", "2",
-                    "--ignore-errors",
-                    youtube_url
-                ],
-                # Strategy 2: Force generic extractor if YouTube extractor fails
-                [
-                    "yt-dlp",
-                    "--force-generic-extractor",
-                    "--format", "best[height<=720]/best",
-                    "--output", "youtube_video.%(ext)s",
-                    "--no-check-certificate",
-                    "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                    youtube_url
-                ],
-                # Strategy 3: Use audio-only as last resort
-                [
-                    "yt-dlp",
-                    "--format", "bestaudio/best",
-                    "--output", "youtube_video.%(ext)s",
-                    "--no-check-certificate",
-                    "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                    youtube_url
-                ]
-            ]
-            
-            # Try each download strategy until one succeeds
-            result = None
-            cookies_file = None
-            
-            for strategy_num, download_command in enumerate(download_strategies, 1):
-                Actor.log.info(f"Trying download strategy {strategy_num}...")
-                
-                # Add cookies if provided
-                if cookies:
-                    if not cookies_file:
-                        cookies_file = "cookies.txt"
-                        with open(cookies_file, 'w') as f:
-                            f.write(cookies)
-                    # Insert cookies at the beginning of the command (after yt-dlp)
-                    cmd_with_cookies = download_command.copy()
-                    cmd_with_cookies.insert(1, "--cookies")
-                    cmd_with_cookies.insert(2, cookies_file)
-                    download_command = cmd_with_cookies
-                
-                result = subprocess.run(download_command, capture_output=True, text=True)
-                
-                if result.returncode == 0:
-                    Actor.log.info(f"Download successful with strategy {strategy_num}!")
-                    break
-                else:
-                    Actor.log.warning(f"Strategy {strategy_num} failed: {result.stderr[:200]}...")
-                    if strategy_num < len(download_strategies):
-                        Actor.log.info(f"Trying next strategy...")
-                    else:
-                        Actor.log.error("All download strategies failed")
-            
-            # Clean up cookies file if it was created
-            if cookies_file and os.path.exists(cookies_file):
-                os.remove(cookies_file)
-                Actor.log.info("Cleaned up cookies file")
-            
-            if result.returncode != 0:
-                await Actor.fail(status_message=f"All download strategies failed. Last error: {result.stderr}")
+            if not video_file_path:
+                await Actor.fail(status_message=f"Failed to download video")
                 return
             
-            Actor.log.info("Download successful!")
-            
-            # Find the downloaded file
-            video_files = glob.glob("youtube_video.*")
-            if not video_files:
-                await Actor.fail(status_message=f"No video file found after download")
-                return
-            
-            video_file_path = video_files[0]
             Actor.log.info(f"Downloaded file: {video_file_path}")
             
             # Upload the file to Gemini
