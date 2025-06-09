@@ -14,6 +14,7 @@ async def main():
         youtube_url = actor_input.get('youtube_url')
         gemini_api_key = actor_input.get('gemini_api_key')
         use_default_key = actor_input.get('use_default_key', False)
+        cookies = actor_input.get('cookies')
         
         # Validate inputs
         if not youtube_url:
@@ -33,11 +34,11 @@ async def main():
         # Configure Gemini API
         genai.configure(api_key=api_key)
         
-        await Actor.log.info(f"Starting download of YouTube video: {youtube_url}")
+        Actor.log.info(f"Starting download of YouTube video: {youtube_url}")
 
         try:
             # Download the video using yt-dlp
-            await Actor.log.info("Downloading video...")
+            Actor.log.info("Downloading video...")
             
             # Download with specific format to get a smaller file
             download_command = [
@@ -47,13 +48,17 @@ async def main():
                 youtube_url
             ]
             
+            if cookies:
+                download_command.insert(1, "--cookies")
+                download_command.insert(2, cookies)
+
             result = subprocess.run(download_command, capture_output=True, text=True)
             
             if result.returncode != 0:
                 await Actor.fail(f"Download failed: {result.stderr}")
                 return
             
-            await Actor.log.info("Download successful!")
+            Actor.log.info("Download successful!")
             
             # Find the downloaded file
             video_files = glob.glob("youtube_video.*")
@@ -62,24 +67,24 @@ async def main():
                 return
             
             video_file_path = video_files[0]
-            await Actor.log.info(f"Downloaded file: {video_file_path}")
+            Actor.log.info(f"Downloaded file: {video_file_path}")
             
             # Upload the file to Gemini
-            await Actor.log.info("Uploading file to Gemini...")
+            Actor.log.info("Uploading file to Gemini...")
             myfile = genai.upload_file(path=video_file_path)
-            await Actor.log.info(f"Upload successful! File ID: {myfile.name}")
+            Actor.log.info(f"Upload successful! File ID: {myfile.name}")
 
             # Wait for file to become active
-            await Actor.log.info("Waiting for file to be processed...")
+            Actor.log.info("Waiting for file to be processed...")
             max_wait_time = 300  # 5 minutes max
             wait_time = 0
             
             while wait_time < max_wait_time:
                 file_info = genai.get_file(myfile.name)
-                await Actor.log.info(f"File state: {file_info.state.name}")
+                Actor.log.info(f"File state: {file_info.state.name}")
                 
                 if file_info.state.name == 'ACTIVE':
-                    await Actor.log.info("File is now active and ready!")
+                    Actor.log.info("File is now active and ready!")
                     break
                 elif file_info.state.name == 'FAILED':
                     # Clean up downloaded file
@@ -87,7 +92,7 @@ async def main():
                     await Actor.fail("File processing failed!")
                     return
                 else:
-                    await Actor.log.info("Still processing... waiting 15 seconds")
+                    Actor.log.info("Still processing... waiting 15 seconds")
                     time.sleep(15)
                     wait_time += 15
             
@@ -98,11 +103,11 @@ async def main():
                 return
 
             # Generate detailed content analysis
-            await Actor.log.info("Generating detailed content analysis...")
+            Actor.log.info("Generating detailed content analysis...")
             model = genai.GenerativeModel("gemini-2.0-flash")
             
             # First analysis - detailed summary
-            await Actor.log.info("Getting detailed summary...")
+            Actor.log.info("Getting detailed summary...")
             response1 = model.generate_content([
                 myfile, 
                 """Provide a comprehensive analysis of this video including:
@@ -115,7 +120,7 @@ async def main():
             ])
             
             # Second analysis - key quotes and insights
-            await Actor.log.info("Extracting key quotes and insights...")
+            Actor.log.info("Extracting key quotes and insights...")
             response2 = model.generate_content([
                 myfile,
                 """Extract the most important quotes and insights from this video:
@@ -126,7 +131,7 @@ async def main():
             ])
             
             # Third analysis - structure and format
-            await Actor.log.info("Analyzing video structure...")
+            Actor.log.info("Analyzing video structure...")
             response3 = model.generate_content([
                 myfile,
                 """Analyze the structure and format of this video:
@@ -148,21 +153,21 @@ async def main():
             # Push results to Apify dataset
             await Actor.push_data(analysis_results)
             
-            await Actor.log.info("Analysis complete! Results saved to dataset.")
+            Actor.log.info("Analysis complete! Results saved to dataset.")
             
             # Clean up downloaded file
-            await Actor.log.info(f"Cleaning up downloaded file: {video_file_path}")
+            Actor.log.info(f"Cleaning up downloaded file: {video_file_path}")
             os.remove(video_file_path)
-            await Actor.log.info("Cleanup complete!")
+            Actor.log.info("Cleanup complete!")
 
         except Exception as e:
-            await Actor.log.error(f"Error: {e}")
+            Actor.log.error(f"Error: {e}")
             # Clean up downloaded file if it exists
             video_files = glob.glob("youtube_video.*")
             for file in video_files:
                 try:
                     os.remove(file)
-                    await Actor.log.info(f"Cleaned up: {file}")
+                    Actor.log.info(f"Cleaned up: {file}")
                 except:
                     pass
             await Actor.fail(f"Actor failed with error: {e}")

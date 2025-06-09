@@ -26,6 +26,13 @@
       "isSecret": true,
       "example": "AIzaSyC...",
       "editor": "textfield"
+    },
+    "cookies": {
+      "title": "Cookies (Optional)",
+      "type": "string",
+      "description": "Optional: Cookies to be used for accessing restricted YouTube videos. Provide them as a string (e.g., \"key1=value1; key2=value2\").",
+      "isSecret": true,
+      "editor": "textfield"
     }
   },
   "required": ["youtube_url"]
