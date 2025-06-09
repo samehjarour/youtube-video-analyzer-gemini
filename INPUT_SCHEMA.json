@@ -1,13 +1,13 @@
 {
   "title": "YouTube Video Analysis with Gemini AI",
-  "description": "Analyze YouTube videos using Google's Gemini AI to extract comprehensive insights, key quotes, and structural analysis.",
+  "description": "Analyze YouTube videos using Google's Gemini AI to extract comprehensive insights, key quotes, and structural analysis. Uses direct YouTube URL processing - no downloads required!",
   "type": "object",
   "schemaVersion": 1,
   "properties": {
     "youtube_url": {
       "title": "YouTube URL",
       "type": "string",
-      "description": "The YouTube video URL to analyze (e.g., https://youtu.be/VIDEO_ID or https://www.youtube.com/watch?v=VIDEO_ID)",
+      "description": "The YouTube video URL to analyze (e.g., https://youtu.be/VIDEO_ID or https://www.youtube.com/watch?v=VIDEO_ID). Must be a public YouTube video.",
       "pattern": "^https?://(www\\.)?(youtube\\.com/watch\\?v=|youtu\\.be/)[a-zA-Z0-9_-]+",
       "example": "https://youtu.be/u8HpmP8HC-Y",
       "editor": "textfield"
@@ -25,47 +25,6 @@
       "description": "Your Google Gemini API key. Only required if 'Use Default Gemini API Key' is unchecked. Get your API key from https://aistudio.google.com/app/apikey",
       "isSecret": true,
       "example": "AIzaSyC...",
-      "editor": "textfield"
-    },
-    "cookies": {
-      "title": "YouTube Cookies (Optional)",
-      "type": "string",
-      "description": "Optional: YouTube cookies in Netscape format to bypass bot detection. Export cookies from your browser using extensions like 'Get cookies.txt LOCALLY' or 'Cookie-Editor'. Paste the entire contents of the cookies.txt file here. Required for age-restricted or sign-in protected videos.",
-      "isSecret": true,
-      "editor": "textarea"
-    },
-    "use_external_downloader": {
-      "title": "Use External YouTube Downloader",
-      "type": "boolean",
-      "description": "Use Apify's streamers/youtube-video-downloader Actor instead of yt-dlp. More reliable but requires cloud storage setup.",
-      "default": false,
-      "editor": "checkbox"
-    },
-    "s3_access_key_id": {
-      "title": "S3 Access Key ID (for external downloader)",
-      "type": "string",
-      "description": "Required only if using external downloader. AWS S3 access key ID for storing downloaded videos.",
-      "isSecret": true,
-      "editor": "textfield"
-    },
-    "s3_secret_access_key": {
-      "title": "S3 Secret Access Key (for external downloader)",
-      "type": "string",
-      "description": "Required only if using external downloader. AWS S3 secret access key for storing downloaded videos.",
-      "isSecret": true,
-      "editor": "textfield"
-    },
-    "s3_bucket": {
-      "title": "S3 Bucket Name (for external downloader)",
-      "type": "string",
-      "description": "Required only if using external downloader. Name of your S3 bucket where videos will be stored.",
-      "editor": "textfield"
-    },
-    "s3_region": {
-      "title": "S3 Region (for external downloader)",
-      "type": "string",
-      "description": "Required only if using external downloader. AWS region of your S3 bucket (e.g., 'us-west-1').",
-      "default": "us-east-1",
       "editor": "textfield"
     }
   },
