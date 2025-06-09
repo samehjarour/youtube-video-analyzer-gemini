@@ -37,9 +37,11 @@ async def main():
             model = genai.GenerativeModel("gemini-2.0-flash")
             
             # Create file data part with YouTube URL
-            youtube_file_part = genai.types.Part(
-                file_data=genai.types.FileData(file_uri=youtube_url)
-            )
+            youtube_file_part = {
+                "file_data": {
+                    "file_uri": youtube_url
+                }
+            }
             
             # First analysis - detailed summary
             Actor.log.info("Getting detailed summary...")
