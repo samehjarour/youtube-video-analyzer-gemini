@@ -26,6 +26,15 @@
       "isSecret": true,
       "example": "AIzaSyC...",
       "editor": "textfield"
+    },
+    "num_timestamps": {
+      "title": "Number of Important Timestamps",
+      "type": "integer",
+      "description": "Number of important timestamps to extract from the video (e.g., key moments, topic changes, important quotes). Set to 0 to disable timestamp extraction.",
+      "default": 5,
+      "minimum": 0,
+      "maximum": 20,
+      "editor": "number"
     }
   },
   "required": ["youtube_url"]

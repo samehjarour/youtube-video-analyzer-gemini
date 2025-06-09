@@ -10,6 +10,7 @@ async def main():
         youtube_url = actor_input.get('youtube_url')
         gemini_api_key = actor_input.get('gemini_api_key')
         use_default_key = actor_input.get('use_default_key', False)
+        num_timestamps = actor_input.get('num_timestamps', 5)
         
         # Validate inputs
         if not youtube_url:
@@ -78,6 +79,31 @@ async def main():
                 4. Are there distinct sections or topics covered?"""
             ])
 
+            # Fourth analysis - important timestamps (if requested)
+            timestamps_analysis = None
+            if num_timestamps > 0:
+                Actor.log.info(f"Extracting {num_timestamps} important timestamps...")
+                response4 = model.generate_content([
+                    youtube_file_part,
+                    f"""Identify the {num_timestamps} most important timestamps in this video. For each timestamp, provide:
+                    1. The exact time (in MM:SS format)
+                    2. A brief title/description of what happens at that moment
+                    3. Why this moment is significant (key insight, topic change, important quote, etc.)
+                    
+                    Format your response as a numbered list with clear timestamps. Focus on:
+                    - Key topic transitions
+                    - Important quotes or insights
+                    - Significant moments or revelations
+                    - Major discussion points
+                    - Actionable advice or recommendations
+                    
+                    Example format:
+                    1. 02:15 - "Topic Introduction" - Brief explanation of significance
+                    2. 05:30 - "Key Insight" - Why this moment matters
+                    """
+                ])
+                timestamps_analysis = response4.text
+
             # Prepare the results
             analysis_results = {
                 "video_url": youtube_url,
@@ -86,6 +112,11 @@ async def main():
                 "video_structure_analysis": response3.text,
                 "processing_method": "direct_youtube_url"
             }
+            
+            # Add timestamps if extracted
+            if timestamps_analysis:
+                analysis_results["important_timestamps"] = timestamps_analysis
+                analysis_results["num_timestamps_requested"] = num_timestamps
             
             # Push results to Apify dataset
             await Actor.push_data(analysis_results)
