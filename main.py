@@ -49,28 +49,72 @@ async def main():
             Actor.log.info("Downloading video...")
             
             # Download with specific format to get a smaller file
-            download_command = [
-                "yt-dlp", 
-                "--format", "best[height<=720]",  # Limit to 720p or lower for smaller file
-                "--output", "youtube_video.%(ext)s",
-                "--no-check-certificate",  # Skip SSL certificate verification
-                "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-                "--extractor-retries", "3",  # Retry extraction up to 3 times
-                "--fragment-retries", "3",   # Retry fragments up to 3 times
-                "--retry-sleep", "1",        # Sleep between retries
-                youtube_url
+            # Try multiple strategies to handle YouTube's changing player
+            download_strategies = [
+                # Strategy 1: Standard download with fallback formats
+                [
+                    "yt-dlp", 
+                    "--format", "best[height<=720]/best[height<=480]/worst",
+                    "--output", "youtube_video.%(ext)s",
+                    "--no-check-certificate",
+                    "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    "--extractor-retries", "5",
+                    "--fragment-retries", "5",
+                    "--retry-sleep", "2",
+                    "--ignore-errors",
+                    youtube_url
+                ],
+                # Strategy 2: Force generic extractor if YouTube extractor fails
+                [
+                    "yt-dlp",
+                    "--force-generic-extractor",
+                    "--format", "best[height<=720]/best",
+                    "--output", "youtube_video.%(ext)s",
+                    "--no-check-certificate",
+                    "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    youtube_url
+                ],
+                # Strategy 3: Use audio-only as last resort
+                [
+                    "yt-dlp",
+                    "--format", "bestaudio/best",
+                    "--output", "youtube_video.%(ext)s",
+                    "--no-check-certificate",
+                    "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    youtube_url
+                ]
             ]
             
+            # Try each download strategy until one succeeds
+            result = None
             cookies_file = None
-            if cookies:
-                # Write cookies to a temporary file
-                cookies_file = "cookies.txt"
-                with open(cookies_file, 'w') as f:
-                    f.write(cookies)
-                download_command.insert(1, "--cookies")
-                download_command.insert(2, cookies_file)
-
-            result = subprocess.run(download_command, capture_output=True, text=True)
+            
+            for strategy_num, download_command in enumerate(download_strategies, 1):
+                Actor.log.info(f"Trying download strategy {strategy_num}...")
+                
+                # Add cookies if provided
+                if cookies:
+                    if not cookies_file:
+                        cookies_file = "cookies.txt"
+                        with open(cookies_file, 'w') as f:
+                            f.write(cookies)
+                    # Insert cookies at the beginning of the command (after yt-dlp)
+                    cmd_with_cookies = download_command.copy()
+                    cmd_with_cookies.insert(1, "--cookies")
+                    cmd_with_cookies.insert(2, cookies_file)
+                    download_command = cmd_with_cookies
+                
+                result = subprocess.run(download_command, capture_output=True, text=True)
+                
+                if result.returncode == 0:
+                    Actor.log.info(f"Download successful with strategy {strategy_num}!")
+                    break
+                else:
+                    Actor.log.warning(f"Strategy {strategy_num} failed: {result.stderr[:200]}...")
+                    if strategy_num < len(download_strategies):
+                        Actor.log.info(f"Trying next strategy...")
+                    else:
+                        Actor.log.error("All download strategies failed")
             
             # Clean up cookies file if it was created
             if cookies_file and os.path.exists(cookies_file):
@@ -78,7 +122,7 @@ async def main():
                 Actor.log.info("Cleaned up cookies file")
             
             if result.returncode != 0:
-                await Actor.fail(status_message=f"Download failed: {result.stderr}")
+                await Actor.fail(status_message=f"All download strategies failed. Last error: {result.stderr}")
                 return
             
             Actor.log.info("Download successful!")
