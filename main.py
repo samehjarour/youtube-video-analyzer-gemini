@@ -37,6 +37,14 @@ async def main():
         Actor.log.info(f"Starting download of YouTube video: {youtube_url}")
 
         try:
+            # Update yt-dlp to latest version to handle YouTube changes
+            Actor.log.info("Updating yt-dlp to latest version...")
+            update_result = subprocess.run(["yt-dlp", "--update"], capture_output=True, text=True)
+            if update_result.returncode == 0:
+                Actor.log.info("yt-dlp updated successfully")
+            else:
+                Actor.log.info("yt-dlp update failed or not needed, continuing with current version")
+            
             # Download the video using yt-dlp
             Actor.log.info("Downloading video...")
             
@@ -45,6 +53,11 @@ async def main():
                 "yt-dlp", 
                 "--format", "best[height<=720]",  # Limit to 720p or lower for smaller file
                 "--output", "youtube_video.%(ext)s",
+                "--no-check-certificate",  # Skip SSL certificate verification
+                "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                "--extractor-retries", "3",  # Retry extraction up to 3 times
+                "--fragment-retries", "3",   # Retry fragments up to 3 times
+                "--retry-sleep", "1",        # Sleep between retries
                 youtube_url
             ]
             
