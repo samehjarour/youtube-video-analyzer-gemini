@@ -1,46 +1,107 @@
 {
-  "title": "YouTube Video Analysis Results",
-  "description": "Comprehensive analysis results from YouTube video processed with Google Gemini AI",
-  "type": "object",
-  "schemaVersion": 1,
-  "properties": {
-    "video_url": {
-      "title": "Video URL",
-      "type": "string",
-      "description": "The original YouTube video URL that was analyzed",
-      "format": "uri",
-      "example": "https://youtu.be/dQw4w9WgXcQ"
+  "actorSpecification": 1,
+  "fields": {
+    "type": "object",
+    "properties": {
+      "video_url": {
+        "type": "string",
+        "title": "Video URL",
+        "description": "The original YouTube video URL that was analyzed",
+        "format": "uri",
+        "example": "https://youtu.be/dQw4w9WgXcQ"
+      },
+      "comprehensive_summary": {
+        "type": "string",
+        "title": "Comprehensive Summary",
+        "description": "Detailed analysis including main content, participants, topics, recommendations, data points, and overall tone of the video",
+        "example": "This video features a business consultation where the main speaker discusses digital marketing strategies..."
+      },
+      "key_quotes_insights": {
+        "type": "string",
+        "title": "Key Quotes and Insights",
+        "description": "Most important quotes, valuable business advice, problems and solutions discussed, and specific strategies or frameworks mentioned",
+        "example": "Key quotes: 'Content is king, but distribution is queen' - Main business advice: Focus on customer retention..."
+      },
+      "video_structure_analysis": {
+        "type": "string",
+        "title": "Video Structure Analysis",
+        "description": "Analysis of video type, length, flow, organization, and distinct sections covered",
+        "example": "Video type: Business consultation interview. Length: Approximately 45 minutes..."
+      },
+      "important_timestamps": {
+        "type": "string",
+        "title": "Important Timestamps",
+        "description": "Key moments in the video with timestamps in MM:SS format, including descriptions and significance explanations",
+        "example": "1. 02:15 - 'Topic Introduction' - Brief explanation of significance\n2. 05:30 - 'Key Insight' - Why this moment matters"
+      },
+      "num_timestamps_requested": {
+        "type": "integer",
+        "title": "Number of Timestamps Requested",
+        "description": "The number of timestamps that were requested for extraction",
+        "example": 5
+      },
+      "processing_method": {
+        "type": "string",
+        "title": "Processing Method",
+        "description": "The method used to process the video",
+        "example": "direct_youtube_url"
+      }
     },
-    "comprehensive_summary": {
-      "title": "Comprehensive Summary",
-      "type": "string",
-      "description": "Detailed analysis including main content, participants, topics, recommendations, data points, and overall tone of the video",
-      "example": "This video features a business consultation where the main speaker discusses digital marketing strategies. Key participants include the consultant and client. Main topics covered include SEO optimization, content marketing, and social media strategy..."
-    },
-    "key_quotes_insights": {
-      "title": "Key Quotes and Insights",
-      "type": "string",
-      "description": "Most important quotes, valuable business advice, problems and solutions discussed, and specific strategies or frameworks mentioned",
-      "example": "Key quotes: 'Content is king, but distribution is queen' - Main business advice: Focus on customer retention over acquisition. Problems discussed: Low conversion rates. Solutions: Implement A/B testing and personalization..."
-    },
-    "video_structure_analysis": {
-      "title": "Video Structure Analysis",
-      "type": "string",
-      "description": "Analysis of video type, length, flow, organization, and distinct sections covered",
-      "example": "Video type: Business consultation interview. Length: Approximately 45 minutes. Flow: Introduction (0-5 min), Problem identification (5-20 min), Solution discussion (20-40 min), Action items (40-45 min)..."
-    },
-    "file_id": {
-      "title": "Gemini File ID",
-      "type": "string",
-      "description": "The Google Gemini file identifier for the uploaded video file",
-      "example": "files/abc123def456ghi789"
-    }
+    "required": [
+      "video_url",
+      "comprehensive_summary",
+      "key_quotes_insights",
+      "video_structure_analysis",
+      "processing_method"
+    ]
   },
-  "required": [
-    "video_url",
-    "comprehensive_summary",
-    "key_quotes_insights", 
-    "video_structure_analysis",
-    "file_id"
-  ]
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": [
+          "video_url",
+          "comprehensive_summary",
+          "key_quotes_insights",
+          "video_structure_analysis",
+          "important_timestamps",
+          "num_timestamps_requested",
+          "processing_method"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "video_url": {
+            "label": "YouTube URL",
+            "format": "link"
+          },
+          "comprehensive_summary": {
+            "label": "Summary",
+            "format": "text"
+          },
+          "key_quotes_insights": {
+            "label": "Key Quotes & Insights",
+            "format": "text"
+          },
+          "video_structure_analysis": {
+            "label": "Structure Analysis",
+            "format": "text"
+          },
+          "important_timestamps": {
+            "label": "Important Timestamps",
+            "format": "text"
+          },
+          "num_timestamps_requested": {
+            "label": "Timestamps Count",
+            "format": "number"
+          },
+          "processing_method": {
+            "label": "Processing Method",
+            "format": "text"
+          }
+        }
+      }
+    }
+  }
 }
