@@ -28,11 +28,11 @@
       "editor": "textfield"
     },
     "cookies": {
-      "title": "Cookies (Optional)",
+      "title": "YouTube Cookies (Optional)",
       "type": "string",
-      "description": "Optional: Cookies in Netscape format to be used for accessing restricted YouTube videos. You can export them using the Cookie-Editor extension: https://cookie-editor.com/",
+      "description": "Optional: YouTube cookies in Netscape format to bypass bot detection. Export cookies from your browser using extensions like 'Get cookies.txt LOCALLY' or 'Cookie-Editor'. Paste the entire contents of the cookies.txt file here. Required for age-restricted or sign-in protected videos.",
       "isSecret": true,
-      "editor": "textfield"
+      "editor": "textarea"
     }
   },
   "required": ["youtube_url"]

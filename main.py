@@ -48,11 +48,21 @@ async def main():
                 youtube_url
             ]
             
+            cookies_file = None
             if cookies:
+                # Write cookies to a temporary file
+                cookies_file = "cookies.txt"
+                with open(cookies_file, 'w') as f:
+                    f.write(cookies)
                 download_command.insert(1, "--cookies")
-                download_command.insert(2, cookies)
+                download_command.insert(2, cookies_file)
 
             result = subprocess.run(download_command, capture_output=True, text=True)
+            
+            # Clean up cookies file if it was created
+            if cookies_file and os.path.exists(cookies_file):
+                os.remove(cookies_file)
+                Actor.log.info("Cleaned up cookies file")
             
             if result.returncode != 0:
                 await Actor.fail(status_message=f"Download failed: {result.stderr}")
@@ -168,6 +178,13 @@ async def main():
                 try:
                     os.remove(file)
                     Actor.log.info(f"Cleaned up: {file}")
+                except:
+                    pass
+            # Clean up cookies file if it exists
+            if os.path.exists("cookies.txt"):
+                try:
+                    os.remove("cookies.txt")
+                    Actor.log.info("Cleaned up cookies file")
                 except:
                     pass
             await Actor.fail(status_message=f"Actor failed with error: {e}")
