@@ -45,6 +45,18 @@
         "title": "Processing Method",
         "description": "The method used to process the video",
         "example": "direct_youtube_url"
+      },
+      "custom_analysis": {
+        "type": "string",
+        "title": "Custom Analysis",
+        "description": "Analysis based on user's custom question or prompt",
+        "example": "Based on the custom prompt about marketing strategies, the video covers..."
+      },
+      "custom_prompt_used": {
+        "type": "string",
+        "title": "Custom Prompt Used",
+        "description": "The custom question or prompt that was provided by the user",
+        "example": "What are the main marketing strategies discussed?"
       }
     },
     "required": [
@@ -66,6 +78,8 @@
           "video_structure_analysis",
           "important_timestamps",
           "num_timestamps_requested",
+          "custom_analysis",
+          "custom_prompt_used",
           "processing_method"
         ]
       },
@@ -95,6 +109,14 @@
           "num_timestamps_requested": {
             "label": "Timestamps Count",
             "format": "number"
+          },
+          "custom_analysis": {
+            "label": "Custom Analysis",
+            "format": "text"
+          },
+          "custom_prompt_used": {
+            "label": "Custom Prompt",
+            "format": "text"
           },
           "processing_method": {
             "label": "Processing Method",

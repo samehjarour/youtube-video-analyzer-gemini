@@ -35,6 +35,13 @@
       "minimum": 0,
       "maximum": 20,
       "editor": "number"
+    },
+    "custom_prompt": {
+      "title": "Custom Question/Prompt (Optional)",
+      "type": "string",
+      "description": "Ask a specific question about the video or provide a custom analysis prompt. This will generate an additional analysis section based on your specific needs.",
+      "example": "What are the main marketing strategies discussed? How can I apply these concepts to my business?",
+      "editor": "textarea"
     }
   },
   "required": ["youtube_url"]

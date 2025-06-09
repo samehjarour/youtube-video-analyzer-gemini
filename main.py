@@ -11,6 +11,7 @@ async def main():
         gemini_api_key = actor_input.get('gemini_api_key')
         use_default_key = actor_input.get('use_default_key', False)
         num_timestamps = actor_input.get('num_timestamps', 5)
+        custom_prompt = actor_input.get('custom_prompt', '').strip()
         
         # Validate inputs
         if not youtube_url:
@@ -79,30 +80,51 @@ async def main():
                 4. Are there distinct sections or topics covered?"""
             ])
 
-            # Fourth analysis - important timestamps (if requested)
+            # Fourth analysis - comprehensive timestamps (if requested)
             timestamps_analysis = None
             if num_timestamps > 0:
-                Actor.log.info(f"Extracting {num_timestamps} important timestamps...")
+                Actor.log.info(f"Extracting {num_timestamps} comprehensive timestamps...")
                 response4 = model.generate_content([
                     youtube_file_part,
-                    f"""Identify the {num_timestamps} most important timestamps in this video. For each timestamp, provide:
-                    1. The exact time (in MM:SS format)
-                    2. A brief title/description of what happens at that moment
-                    3. Why this moment is significant (key insight, topic change, important quote, etc.)
-                    
-                    Format your response as a numbered list with clear timestamps. Focus on:
-                    - Key topic transitions
-                    - Important quotes or insights
-                    - Significant moments or revelations
-                    - Major discussion points
-                    - Actionable advice or recommendations
-                    
-                    Example format:
-                    1. 02:15 - "Topic Introduction" - Brief explanation of significance
-                    2. 05:30 - "Key Insight" - Why this moment matters
-                    """
+                    f"""Analyze this video comprehensively and identify the {num_timestamps} most important timestamps that span the entire video duration. 
+
+                    IMPORTANT: Make sure to cover the ENTIRE video from beginning to end, not just the first few minutes. 
+
+                    For each timestamp, provide:
+                    1. The exact time (in MM:SS or HH:MM:SS format for longer videos)
+                    2. A descriptive title of what happens at that moment
+                    3. Detailed explanation of why this moment is significant
+                    4. Key quotes or insights from that section (if any)
+
+                    Ensure timestamps are distributed throughout the video:
+                    - Include moments from the beginning, middle, and end of the video
+                    - Cover major topic transitions and section changes
+                    - Highlight the most valuable insights and actionable advice
+                    - Include important conclusions and takeaways
+                    - Note any significant data points, examples, or case studies mentioned
+
+                    Format your response as:
+                    1. [TIMESTAMP] - "Section Title" 
+                       Description: [Detailed explanation of what happens and why it's important]
+                       Key Points: [Bullet points of main insights from this section]
+
+                    Make sure to watch the ENTIRE video and provide timestamps that represent the full content, not just the opening segments."""
                 ])
                 timestamps_analysis = response4.text
+
+            # Fifth analysis - custom prompt (if provided)
+            custom_analysis = None
+            if custom_prompt:
+                Actor.log.info("Processing custom prompt...")
+                response5 = model.generate_content([
+                    youtube_file_part,
+                    f"""Based on this video content, please answer the following custom question or prompt:
+
+                    {custom_prompt}
+
+                    Provide a detailed and comprehensive response based on the video content. Include specific examples, quotes, and references to moments in the video when relevant. If the video doesn't contain information to fully answer the question, please indicate what aspects are covered and what might be missing."""
+                ])
+                custom_analysis = response5.text
 
             # Prepare the results
             analysis_results = {
@@ -117,6 +139,11 @@ async def main():
             if timestamps_analysis:
                 analysis_results["important_timestamps"] = timestamps_analysis
                 analysis_results["num_timestamps_requested"] = num_timestamps
+            
+            # Add custom analysis if provided
+            if custom_analysis:
+                analysis_results["custom_analysis"] = custom_analysis
+                analysis_results["custom_prompt_used"] = custom_prompt
             
             # Push results to Apify dataset
             await Actor.push_data(analysis_results)
