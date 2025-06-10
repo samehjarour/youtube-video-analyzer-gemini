@@ -1,3 +1,4 @@
+import os
 import google.generativeai as genai
 from apify import Actor
 
@@ -24,7 +25,7 @@ async def main():
             
         # Use default key if specified, otherwise use provided key
         if use_default_key:
-            api_key = "os.getenv('GEMINI_API_KEY')
+            api_key = os.getenv('GEMINI_API_KEY')
         else:
             api_key = gemini_api_key
             
