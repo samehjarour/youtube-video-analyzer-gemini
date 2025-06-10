@@ -24,7 +24,7 @@ async def main():
             
         # Use default key if specified, otherwise use provided key
         if use_default_key:
-            api_key = "AIzaSyC1xELhT9imEji5TRcVGkSsENhQmsSSo6k"
+            api_key = "os.getenv('GEMINI_API_KEY')
         else:
             api_key = gemini_api_key
             
